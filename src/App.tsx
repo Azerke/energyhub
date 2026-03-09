@@ -356,7 +356,7 @@ export default function App() {
                 <div>
                   <div className="text-xs font-bold text-amber-700/50 uppercase tracking-wider">Yield</div>
                   <div className="text-lg font-bold text-amber-700">
-                    {solarData?.solar?.yield_today_actual?.value ? formatValue(solarData.solar.yield_today_actual.value) : '--'} <span className="text-sm font-bold text-amber-700/70">kWh</span>
+                    {solarData?.solar?.yield_today_actual?.value ? formatValue(solarData.solar.yield_today_actual.value) : '--'}
                   </div>
                 </div>
                 <div className="text-right">
