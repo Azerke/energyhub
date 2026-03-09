@@ -1,0 +1,5 @@
+{
+  "name": "Energy Dashboard",
+  "description": "A dashboard to monitor home energy usage, solar production, battery status, and EV charging from a local Node-RED API.",
+  "requestFramePermissions": []
+}
