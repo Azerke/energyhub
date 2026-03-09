@@ -169,17 +169,17 @@ export default function App() {
     
     switch (selectedSection) {
       case 'grid':
-        return Object.fromEntries(Object.entries(evData.grid).filter(([k]) => !k.includes('boiler')));
+        return evData.grid ? Object.fromEntries(Object.entries(evData.grid).filter(([k]) => !k.includes('boiler'))) : {};
       case 'boiler':
-        return Object.fromEntries(Object.entries(evData.grid).filter(([k]) => k.includes('boiler')));
+        return evData.grid ? Object.fromEntries(Object.entries(evData.grid).filter(([k]) => k.includes('boiler'))) : {};
       case 'solar':
-        return { ...evData.solar, ...solarData?.solar };
+        return { ...(evData.solar || {}), ...(solarData?.solar || {}) };
       case 'battery':
-        return evData.battery;
+        return evData.battery || {};
       case 'ev':
-        return evData.ev;
+        return evData.ev || {};
       case 'forecast':
-        return { ...evData.forecast, ...Object.fromEntries(Object.entries(solarData?.solar || {}).filter(([k]) => k.includes('forecast'))) };
+        return { ...(evData.forecast || {}), ...Object.fromEntries(Object.entries(solarData?.solar || {}).filter(([k]) => k.includes('forecast'))) };
       default:
         return {};
     }
@@ -226,6 +226,31 @@ export default function App() {
     if (boilerIdle) return 'bg-slate-200 text-slate-500';
     return 'bg-rose-100 text-rose-600';
   };
+
+  const batteryStatus = evData?.battery?.status?.value?.toLowerCase() || '';
+  const isBatteryCharging = batteryStatus.includes('laad') || batteryStatus.includes('charg');
+  const isBatteryDischarging = batteryStatus.includes('ontlaad') || batteryStatus.includes('discharg');
+
+  let batteryBarColor = 'bg-slate-400';
+  let batteryTextColor = 'text-slate-700';
+  let batteryIconColor = 'text-slate-600';
+
+  if (isBatteryCharging) {
+    batteryBarColor = 'bg-emerald-400';
+    batteryTextColor = 'text-emerald-700';
+    batteryIconColor = 'text-emerald-600';
+  } else if (isBatteryDischarging) {
+    batteryBarColor = 'bg-blue-400';
+    batteryTextColor = 'text-blue-700';
+    batteryIconColor = 'text-blue-600';
+  }
+
+  const summaryText = evData?.forecast?.summary?.value || '';
+  const summaryChars = Array.from(summaryText.trim()) as string[];
+  const firstChar = summaryChars[0] || '';
+  const isEmoji = firstChar && !/^[a-zA-Z0-9\s]$/.test(firstChar);
+  const forecastEmoji = isEmoji ? firstChar : '🌞';
+  const summaryWithoutEmoji = isEmoji ? summaryChars.slice(1).join('').trim() : summaryText;
 
   if (loading) {
     return (
@@ -296,20 +321,20 @@ export default function App() {
               <div>
                 <div className="text-sm font-bold text-slate-400 mb-0.5 uppercase tracking-wider">House</div>
                 <div className="text-3xl font-black text-slate-800 tracking-tight">
-                  {formatValue(evData.grid.ac_power.value)} <span className="text-lg font-bold text-slate-400">{evData.grid.ac_power.unit}</span>
+                  {formatValue(evData?.grid?.ac_power?.value)} <span className="text-lg font-bold text-slate-400">{evData?.grid?.ac_power?.unit}</span>
                 </div>
               </div>
               <div className="flex justify-between items-end mt-4">
                 <div>
                   <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Grid</div>
                   <div className="text-lg font-bold text-slate-700">
-                    {formatValue(evData.grid.total_power.value)} <span className="text-sm font-bold text-slate-500">{evData.grid.total_power.unit}</span>
+                    {formatValue(evData?.grid?.total_power?.value)} <span className="text-sm font-bold text-slate-500">{evData?.grid?.total_power?.unit}</span>
                   </div>
                 </div>
                 <div className="text-right">
                   <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Set</div>
                   <div className="text-sm font-bold text-slate-600">
-                    {formatValue(evData.grid.setpoint.value)} {evData.grid.setpoint.unit}
+                    {formatValue(evData?.grid?.setpoint?.value)} {evData?.grid?.setpoint?.unit}
                   </div>
                 </div>
               </div>
@@ -324,7 +349,7 @@ export default function App() {
               <div>
                 <div className="text-sm font-bold text-amber-700/60 mb-0.5 uppercase tracking-wider">Solar</div>
                 <div className="text-3xl font-black text-amber-600 tracking-tight">
-                  {formatValue(evData.solar.total_power.value)} <span className="text-lg font-bold text-amber-600/70">{evData.solar.total_power.unit}</span>
+                  {formatValue(evData?.solar?.total_power?.value)} <span className="text-lg font-bold text-amber-600/70">{evData?.solar?.total_power?.unit}</span>
                 </div>
               </div>
               <div className="mt-4 flex justify-between items-end">
@@ -351,35 +376,35 @@ export default function App() {
             <div className="flex items-center gap-4">
               <div className="w-3/4">
                 <div className="flex items-center gap-2 mb-2">
-                  {evData.battery.status.value.toLowerCase().includes('laad') || evData.battery.status.value.toLowerCase().includes('charg') ? (
-                    <BatteryCharging size={20} className="text-emerald-600" strokeWidth={2.5} />
+                  {isBatteryCharging ? (
+                    <BatteryCharging size={20} className={batteryIconColor} strokeWidth={2.5} />
                   ) : (
-                    <Battery size={20} className="text-emerald-600" strokeWidth={2.5} />
+                    <Battery size={20} className={batteryIconColor} strokeWidth={2.5} />
                   )}
                   <span className="text-sm font-bold text-slate-400 uppercase tracking-wider">Battery</span>
                 </div>
                 <div className="relative h-10 bg-slate-100 rounded-xl overflow-hidden">
                   <div 
-                    className="absolute top-0 left-0 h-full bg-emerald-400 transition-all duration-500 flex items-center px-3"
-                    style={{ width: `${evData.battery.soc.value}%` }}
+                    className={`absolute top-0 left-0 h-full ${batteryBarColor} transition-all duration-500 flex items-center px-3`}
+                    style={{ width: `${evData?.battery?.soc?.value || 0}%` }}
                   >
                     <span className="text-lg font-black text-white drop-shadow-sm">
-                      {formatValue(evData.battery.soc.value)}%
+                      {formatValue(evData?.battery?.soc?.value)}%
                     </span>
                   </div>
-                  {evData.battery.soc.value < 15 && (
+                  {(evData?.battery?.soc?.value || 0) < 15 && (
                     <div className="absolute top-0 left-0 h-full w-full flex items-center px-3">
-                      <span className="text-lg font-black text-emerald-700 ml-10">
-                        {formatValue(evData.battery.soc.value)}%
+                      <span className={`text-lg font-black ${batteryTextColor} ml-10`}>
+                        {formatValue(evData?.battery?.soc?.value)}%
                       </span>
                     </div>
                   )}
                 </div>
               </div>
               <div className="w-1/4 text-right flex flex-col justify-end h-full pt-6">
-                <div className="text-xs font-bold text-slate-400 mb-0.5 uppercase tracking-wider truncate">{evData.battery.status.value}</div>
+                <div className="text-xs font-bold text-slate-400 mb-0.5 uppercase tracking-wider truncate">{evData?.battery?.status?.value}</div>
                 <div className="text-xl font-bold text-slate-700">
-                  {formatValue(evData.battery.power.value)} <span className="text-sm font-bold text-slate-500">{evData.battery.power.unit}</span>
+                  {formatValue(evData?.battery?.power?.value)} <span className="text-sm font-bold text-slate-500">{evData?.battery?.power?.unit}</span>
                 </div>
               </div>
             </div>
@@ -405,7 +430,7 @@ export default function App() {
                   </div>
                 )}
                 <div className={`text-xs font-bold mt-1 ${evState === 'idle' ? 'text-slate-400' : 'opacity-70'}`}>
-                  {evState === 'discharging' ? 'Discharging (V2G)' : evData.ev.status.value}
+                  {evState === 'discharging' ? 'Discharging (V2G)' : evData?.ev?.status?.value}
                 </div>
               </div>
             </div>
@@ -424,11 +449,11 @@ export default function App() {
                   <div className="text-2xl font-black tracking-tight">Idle</div>
                 ) : (
                   <div className="text-2xl font-black tracking-tight">
-                    {formatValue(boilerPower)} <span className="text-sm font-bold opacity-70">{evData.grid.boilerpower.unit}</span>
+                    {formatValue(boilerPower)} <span className="text-sm font-bold opacity-70">{evData?.grid?.boilerpower?.unit}</span>
                   </div>
                 )}
                 <div className={`text-xs font-bold mt-1 ${boilerIdle ? 'text-slate-400' : 'opacity-70'}`}>
-                  Today: {formatValue(evData.grid.boilerpowerday.value)} {evData.grid.boilerpowerday.unit}
+                  Today: {formatValue(evData?.grid?.boilerpowerday?.value)} {evData?.grid?.boilerpowerday?.unit}
                 </div>
               </div>
             </div>
@@ -439,13 +464,13 @@ export default function App() {
         <div className="grid grid-cols-1">
           <Card onClick={() => setSelectedSection('forecast')} className="bg-indigo-50 border-indigo-100">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-indigo-100 rounded-2xl text-indigo-600 shadow-sm">
-                <Calendar size={28} strokeWidth={2.5} />
+              <div className="p-3 bg-indigo-100 rounded-2xl text-indigo-600 shadow-sm flex items-center justify-center text-2xl w-12 h-12">
+                {isEmoji ? forecastEmoji : <Calendar size={28} strokeWidth={2.5} />}
               </div>
               <div>
                 <div className="text-sm font-bold text-indigo-700/60 mb-0.5 uppercase tracking-wider">Forecast</div>
                 <div className="text-lg font-bold text-indigo-700 leading-tight">
-                  {evData.forecast.summary.value}
+                  {summaryWithoutEmoji}
                 </div>
               </div>
             </div>
@@ -462,13 +487,22 @@ export default function App() {
             const dateParts = forecastData.date?.split('/');
             const displayDate = dateParts?.length >= 2 ? `${dateParts[0]}/${dateParts[1]}` : `Day +${dayOffset}`;
             
+            let dayName = '';
+            if (dateParts?.length === 3) {
+              const dateObj = new Date(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`);
+              dayName = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
+            }
+            
             return (
-              <Card key={dayOffset} onClick={() => setSelectedSection('forecast')} className="bg-indigo-50/50 border-indigo-100/50 p-3 flex flex-col items-center justify-center text-center">
-                <div className="text-xs font-bold text-indigo-700/50 mb-1">{displayDate}</div>
-                <div className="text-lg font-black text-indigo-700">
-                  {formatValue(forecastData.value)}
+              <Card key={dayOffset} onClick={() => setSelectedSection('forecast')} className="bg-amber-50/50 border-amber-100/50 p-3 flex flex-col items-center justify-center text-center">
+                <div className="text-sm font-bold text-amber-700/80 mb-0.5">{dayName}</div>
+                <div className="text-xs font-bold text-amber-700/50 mb-1">{displayDate}</div>
+                <div className="flex items-baseline gap-1">
+                  <div className="text-xl font-black text-amber-700">
+                    {formatValue(forecastData.value)}
+                  </div>
+                  <div className="text-[10px] font-bold text-amber-700/60 uppercase">kWh</div>
                 </div>
-                <div className="text-[10px] font-bold text-indigo-700/50 uppercase">kWh</div>
               </Card>
             );
           })}
