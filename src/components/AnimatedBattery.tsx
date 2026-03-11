@@ -22,7 +22,7 @@ export function AnimatedBattery({ level, state, className = '' }: AnimatedBatter
           }}
         >
           {state !== 'idle' && (
-            <div className={`absolute top-0 left-[-100%] w-full h-full bg-gradient-to-r from-transparent via-white/50 to-transparent ${state === 'charging' ? 'animate-pulse-charge' : 'animate-pulse-discharge'}`} />
+            <div className={`absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/80 to-transparent ${state === 'charging' ? 'animate-pulse-charge' : 'animate-pulse-discharge'}`} />
           )}
         </div>
       </div>

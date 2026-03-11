@@ -1,16 +1,16 @@
 @import "tailwindcss";
 
 @theme {
-  --animate-pulse-charge: pulse-charge 1.5s infinite linear;
-  --animate-pulse-discharge: pulse-discharge 1.5s infinite linear;
+  --animate-pulse-charge: pulse-charge 1.2s infinite linear;
+  --animate-pulse-discharge: pulse-discharge 1.2s infinite linear;
 
   @keyframes pulse-charge {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(200%); }
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
   }
 
   @keyframes pulse-discharge {
-    0% { transform: translateX(200%); }
-    100% { transform: translateX(0); }
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
   }
 }

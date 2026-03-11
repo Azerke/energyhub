@@ -229,8 +229,8 @@ export default function App() {
   };
 
   const batteryStatus = evData?.battery?.status?.value?.toLowerCase() || '';
-  const isBatteryCharging = batteryStatus.includes('laad') || batteryStatus.includes('charg');
   const isBatteryDischarging = batteryStatus.includes('ontlaad') || batteryStatus.includes('discharg');
+  const isBatteryCharging = (batteryStatus.includes('laad') || batteryStatus.includes('charg')) && !isBatteryDischarging;
 
   const summaryText = evData?.forecast?.summary?.value || '';
   const summaryChars = Array.from(summaryText.trim()) as string[];
