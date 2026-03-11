@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Home, Sun, Battery, BatteryCharging, Car, Droplets, X, Calendar, WifiOff, AlertCircle } from 'lucide-react';
+import { Home, Sun, Car, Droplets, X, Calendar, WifiOff, AlertCircle } from 'lucide-react';
+import { AnimatedBattery } from './components/AnimatedBattery';
 
 const API_URL_EVDATA = 'https://100.74.104.126:1881/evdata';
 const API_URL_SOLARDATA = 'https://100.74.104.126:1881/solardata';
@@ -231,26 +232,30 @@ export default function App() {
   const isBatteryCharging = batteryStatus.includes('laad') || batteryStatus.includes('charg');
   const isBatteryDischarging = batteryStatus.includes('ontlaad') || batteryStatus.includes('discharg');
 
-  let batteryBarColor = 'bg-slate-400';
-  let batteryTextColor = 'text-slate-700';
-  let batteryIconColor = 'text-slate-600';
-
-  if (isBatteryCharging) {
-    batteryBarColor = 'bg-emerald-400';
-    batteryTextColor = 'text-emerald-700';
-    batteryIconColor = 'text-emerald-600';
-  } else if (isBatteryDischarging) {
-    batteryBarColor = 'bg-blue-400';
-    batteryTextColor = 'text-blue-700';
-    batteryIconColor = 'text-blue-600';
-  }
-
   const summaryText = evData?.forecast?.summary?.value || '';
   const summaryChars = Array.from(summaryText.trim()) as string[];
   const firstChar = summaryChars[0] || '';
   const isEmoji = firstChar && !/^[a-zA-Z0-9\s]$/.test(firstChar);
   const forecastEmoji = isEmoji ? firstChar : '🌞';
   const summaryWithoutEmoji = isEmoji ? summaryChars.slice(1).join('').trim() : summaryText;
+
+  const openShellyApp = () => {
+    const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
+    
+    if (/iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream) {
+      // iOS
+      window.location.href = 'shellysmartcontrol://';
+      setTimeout(() => {
+        window.location.href = 'https://apps.apple.com/app/shelly-smart-control/id1658182208';
+      }, 1500);
+    } else if (/android/i.test(userAgent)) {
+      // Android
+      window.location.href = 'intent://#Intent;package=cloud.shelly.smartcontrol;scheme=shellysmartcontrol;end;';
+    } else {
+      // Desktop / Fallback
+      window.open('https://control.shelly.cloud/', '_blank');
+    }
+  };
 
   if (loading) {
     return (
@@ -373,38 +378,26 @@ export default function App() {
         {/* Second Row: Battery */}
         <div className="grid grid-cols-1">
           <Card onClick={() => setSelectedSection('battery')} className="bg-white border-slate-200">
-            <div className="flex items-center gap-4">
-              <div className="w-3/4">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2">
-                  {isBatteryCharging ? (
-                    <BatteryCharging size={20} className={batteryIconColor} strokeWidth={2.5} />
-                  ) : (
-                    <Battery size={20} className={batteryIconColor} strokeWidth={2.5} />
-                  )}
                   <span className="text-sm font-bold text-slate-400 uppercase tracking-wider">Battery</span>
                 </div>
-                <div className="relative h-10 bg-slate-100 rounded-xl overflow-hidden">
-                  <div 
-                    className={`absolute top-0 left-0 h-full ${batteryBarColor} transition-all duration-500 flex items-center px-3`}
-                    style={{ width: `${evData?.battery?.soc?.value || 0}%` }}
-                  >
-                    <span className="text-lg font-black text-white drop-shadow-sm">
-                      {formatValue(evData?.battery?.soc?.value)}%
-                    </span>
-                  </div>
-                  {(evData?.battery?.soc?.value || 0) < 15 && (
-                    <div className="absolute top-0 left-0 h-full w-full flex items-center px-3">
-                      <span className={`text-lg font-black ${batteryTextColor} ml-10`}>
-                        {formatValue(evData?.battery?.soc?.value)}%
-                      </span>
-                    </div>
-                  )}
-                </div>
+                <AnimatedBattery 
+                  level={evData?.battery?.soc?.value || 0} 
+                  state={isBatteryCharging ? 'charging' : isBatteryDischarging ? 'discharging' : 'idle'} 
+                  className="w-full h-12" 
+                />
               </div>
-              <div className="w-1/4 text-right flex flex-col justify-end h-full pt-6">
-                <div className="text-xs font-bold text-slate-400 mb-0.5 uppercase tracking-wider truncate">{evData?.battery?.status?.value}</div>
-                <div className="text-xl font-bold text-slate-700">
-                  {formatValue(evData?.battery?.power?.value)} <span className="text-sm font-bold text-slate-500">{evData?.battery?.power?.unit}</span>
+              <div className="text-right flex flex-col justify-end h-full pt-6 min-w-[100px]">
+                <div className="text-3xl font-black text-slate-800 mb-1">
+                  {formatValue(evData?.battery?.soc?.value)}<span className="text-lg text-slate-500">%</span>
+                </div>
+                <div className="text-xs font-bold text-slate-400 mb-0.5 uppercase tracking-wider truncate">
+                  {evData?.battery?.status?.value}
+                </div>
+                <div className="text-sm font-bold text-slate-700">
+                  {formatValue(evData?.battery?.power?.value)} <span className="text-xs font-bold text-slate-500">{evData?.battery?.power?.unit}</span>
                 </div>
               </div>
             </div>
@@ -436,7 +429,7 @@ export default function App() {
             </div>
           </Card>
 
-          <Card onClick={() => setSelectedSection('boiler')} className={`${getBoilerCardStyles()} col-span-1`}>
+          <Card onClick={openShellyApp} className={`${getBoilerCardStyles()} col-span-1`}>
             <div className="flex flex-col h-full justify-between min-h-[110px]">
               <div className="flex items-center gap-2 mb-2">
                 <div className={`p-2 rounded-xl shadow-sm ${getBoilerIconStyles()}`}>
