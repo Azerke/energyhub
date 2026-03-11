@@ -380,21 +380,15 @@ export default function App() {
           <Card onClick={() => setSelectedSection('battery')} className="bg-white border-slate-200">
             <div className="flex items-center justify-between gap-4">
               <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-sm font-bold text-slate-400 uppercase tracking-wider">Battery</span>
-                </div>
                 <AnimatedBattery 
                   level={evData?.battery?.soc?.value || 0} 
                   state={isBatteryCharging ? 'charging' : isBatteryDischarging ? 'discharging' : 'idle'} 
                   className="w-full h-12" 
                 />
               </div>
-              <div className="text-right flex flex-col justify-end h-full pt-6 min-w-[100px]">
+              <div className="text-right flex flex-col justify-center h-full min-w-[100px]">
                 <div className="text-3xl font-black text-slate-800 mb-1">
                   {formatValue(evData?.battery?.soc?.value)}<span className="text-lg text-slate-500">%</span>
-                </div>
-                <div className="text-xs font-bold text-slate-400 mb-0.5 uppercase tracking-wider truncate">
-                  {evData?.battery?.status?.value}
                 </div>
                 <div className="text-sm font-bold text-slate-700">
                   {formatValue(evData?.battery?.power?.value)} <span className="text-xs font-bold text-slate-500">{evData?.battery?.power?.unit}</span>
