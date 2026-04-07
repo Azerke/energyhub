@@ -250,7 +250,7 @@ export default function App() {
       }, 1500);
     } else if (/android/i.test(userAgent)) {
       // Android
-      window.location.href = 'intent://#Intent;package=cloud.shelly.smartcontrol;scheme=shellysmartcontrol;end;';
+      window.location.href = 'intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package=cloud.shelly.smartcontrol;end;';
     } else {
       // Desktop / Fallback
       window.open('https://control.shelly.cloud/', '_blank');
