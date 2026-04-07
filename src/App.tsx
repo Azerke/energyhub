@@ -250,7 +250,10 @@ export default function App() {
       }, 1500);
     } else if (/android/i.test(userAgent)) {
       // Android
-      window.location.href = 'intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package=cloud.shelly.smartcontrol;end;';
+      // Use the HTTPS App Link intent. Modern Android apps register their web domains.
+      // If the app is installed, this will open it directly.
+      // If it fails (e.g., intent not matched), it falls back to the web app instead of the Play Store.
+      window.location.href = 'intent://control.shelly.cloud/#Intent;scheme=https;package=cloud.shelly.smartcontrol;S.browser_fallback_url=https%3A%2F%2Fcontrol.shelly.cloud%2F;end;';
     } else {
       // Desktop / Fallback
       window.open('https://control.shelly.cloud/', '_blank');
