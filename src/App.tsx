@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Home, Sun, Car, Droplets, X, Calendar, WifiOff, AlertCircle } from 'lucide-react';
+import { Home, Sun, Car, Droplets, X, Calendar, WifiOff, AlertCircle, WashingMachine } from 'lucide-react';
 import { AnimatedBattery } from './components/AnimatedBattery';
 
 const API_URL_EVDATA = 'https://100.74.104.126:1881/evdata';
@@ -32,6 +32,10 @@ const MOCK_EVDATA = {
     "boilerpowerday": { "value": 9645.6, "unit": "W", "description": "Total Power drawn by the boiler today" },
     "boilerpowertotal": { "value": 12895.596, "unit": "W", "description": "Total Power drawn by the boiler since beginning" },
     "boilerpowertotaldaystart": { "value": "3250", "unit": "W", "description": "Total Power drawn by the boiler since beginning at start of day" },
+    "waspower": { "value": 0, "unit": "W", "description": "Power drawn by the was" },
+    "waspowerday": { "value": 13464.5, "unit": "Wh", "description": "Total Power drawn by the was today" },
+    "waspowertotal": { "value": 13464.497, "unit": "W", "description": "Total Power drawn by the was since beginning" },
+    "waspowertotaldaystart": { "value": 0, "unit": "W", "description": "Total Power drawn by the was since beginning at start of day" },
     "acpowerday": { "value": 0, "unit": "W", "description": "Total Power drawn by the boiler today" },
     "gridpowerday": { "value": 22683, "unit": "W", "description": "Total Power drawn from grid today" }
   },
@@ -228,6 +232,19 @@ export default function App() {
     return 'bg-rose-100 text-rose-600';
   };
 
+  const laundryPower = evData?.grid?.waspower?.value || 0;
+  const laundryIdle = laundryPower < 5;
+
+  const getLaundryCardStyles = () => {
+    if (laundryIdle) return 'bg-slate-50 border-slate-200 text-slate-500';
+    return 'bg-blue-50 border-blue-100 text-blue-700';
+  };
+
+  const getLaundryIconStyles = () => {
+    if (laundryIdle) return 'bg-slate-200 text-slate-500';
+    return 'bg-blue-100 text-blue-600';
+  };
+
   const batteryStatus = evData?.battery?.status?.value?.toLowerCase() || '';
   const isBatteryDischarging = batteryStatus.includes('ontlaad') || batteryStatus.includes('discharg');
   const isBatteryCharging = (batteryStatus.includes('laad') || batteryStatus.includes('charg')) && !isBatteryDischarging;
@@ -401,7 +418,7 @@ export default function App() {
           </Card>
         </div>
 
-        {/* Third Row: EV and Boiler */}
+        {/* Third Row: EV, Boiler, Laundry */}
         <div className="grid grid-cols-2 gap-4">
           <Card onClick={() => setSelectedSection('ev')} className={`${getEvCardStyles()} col-span-1`}>
             <div className="flex flex-col h-full justify-between min-h-[110px]">
@@ -444,6 +461,29 @@ export default function App() {
                 )}
                 <div className={`text-xs font-bold mt-1 ${boilerIdle ? 'text-slate-400' : 'opacity-70'}`}>
                   Today: {formatValue(evData?.grid?.boilerpowerday?.value)} {evData?.grid?.boilerpowerday?.unit}
+                </div>
+              </div>
+            </div>
+          </Card>
+
+          <Card onClick={openShellyApp} className={`${getLaundryCardStyles()} col-span-1`}>
+            <div className="flex flex-col h-full justify-between min-h-[110px]">
+              <div className="flex items-center gap-2 mb-2">
+                <div className={`p-2 rounded-xl shadow-sm ${getLaundryIconStyles()}`}>
+                  <WashingMachine size={20} strokeWidth={2.5} />
+                </div>
+                <span className={`text-sm font-bold uppercase tracking-wider ${laundryIdle ? 'text-slate-400' : 'opacity-70'}`}>Laundry</span>
+              </div>
+              <div>
+                {laundryIdle ? (
+                  <div className="text-2xl font-black tracking-tight">Idle</div>
+                ) : (
+                  <div className="text-2xl font-black tracking-tight">
+                    {formatValue(laundryPower)} <span className="text-sm font-bold opacity-70">{evData?.grid?.waspower?.unit || 'W'}</span>
+                  </div>
+                )}
+                <div className={`text-xs font-bold mt-1 ${laundryIdle ? 'text-slate-400' : 'opacity-70'}`}>
+                  Today: {formatValue(evData?.grid?.waspowerday?.value)} {evData?.grid?.waspowerday?.unit || 'Wh'}
                 </div>
               </div>
             </div>
