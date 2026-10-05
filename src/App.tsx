@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Home, Sun, Car, Droplets, X, Calendar, WifiOff, AlertCircle, WashingMachine } from 'lucide-react';
+import { Home, Sun, Car, Droplets, X, Calendar, WifiOff, AlertCircle, WashingMachine, Download, Maximize2, Minimize2 } from 'lucide-react';
 import { AnimatedBattery } from './components/AnimatedBattery';
+import { usePWAInstall } from './usePWAInstall';
 
 const API_URL_EVDATA = 'https://einstein-victron.taile3356b.ts.net:1881/evdata';
 const API_URL_SOLARDATA = 'https://einstein-victron.taile3356b.ts.net:1881/solardata';
@@ -98,7 +99,7 @@ const Modal = ({ isOpen, onClose, title, data }: any) => {
       >
         <div className="flex items-center justify-between p-6 border-b border-slate-100">
           <h2 className="text-xl font-bold text-slate-800 capitalize">{title} Details</h2>
-          <button onClick={onClose} className="p-2 bg-slate-100 rounded-full text-slate-500 hover:bg-slate-200 transition-colors">
+          <button onClick={onClose} className="p-2 bg-slate-100 rounded-full text-slate-500 hover:bg-slate-200 transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center">
             <X size={20} />
           </button>
         </div>
@@ -111,7 +112,7 @@ const Modal = ({ isOpen, onClose, title, data }: any) => {
                   <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
                     {key.replace(/_/g, ' ')}
                   </div>
-                  <div className="flex items-baseline gap-2 mb-1">
+                  <div className="flex items-baseline gap-2 mb-1 tabular-nums">
                     <span className="text-xl font-bold text-slate-800">
                       {formatValue(item.value)}
                     </span>
@@ -135,6 +136,10 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showInstallGuide, setShowInstallGuide] = useState(false);
+
+  const { isInstallable, isInstalled, isIOS, install } = usePWAInstall();
 
   const fetchData = async () => {
     try {
@@ -168,6 +173,56 @@ export default function App() {
     const interval = setInterval(fetchData, 5000);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      const fsElement =
+        document.fullscreenElement ||
+        (document as any).webkitFullscreenElement ||
+        (document as any).msFullscreenElement;
+      setIsFullscreen(!!fsElement);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+    };
+  }, []);
+
+  const toggleFullscreen = async () => {
+    try {
+      const docEl = document.documentElement as any;
+      const doc = document as any;
+      const isCurrentlyFs =
+        doc.fullscreenElement || doc.webkitFullscreenElement || doc.msFullscreenElement;
+
+      if (!isCurrentlyFs) {
+        if (docEl.requestFullscreen) {
+          await docEl.requestFullscreen();
+        } else if (docEl.webkitRequestFullscreen) {
+          await docEl.webkitRequestFullscreen();
+        }
+      } else {
+        if (doc.exitFullscreen) {
+          await doc.exitFullscreen();
+        } else if (doc.webkitExitFullscreen) {
+          await doc.webkitExitFullscreen();
+        }
+      }
+    } catch (err) {
+      console.error('Fullscreen toggle failed:', err);
+    }
+  };
+
+  const handleInstallClick = async () => {
+    if (isInstallable) {
+      const accepted = await install();
+      if (accepted) return;
+    }
+    setShowInstallGuide(true);
+  };
 
   const getModalData = () => {
     if (!selectedSection || !evData) return {};
@@ -267,13 +322,10 @@ export default function App() {
       }, 1500);
     } else if (/android/i.test(userAgent)) {
       // Android
-      // Use the HTTPS App Link intent. Modern Android apps register their web domains.
-      // If the app is installed, this will open it directly.
-      // If it fails (e.g., intent not matched), it falls back to the web app instead of the Play Store.
       window.location.href = 'intent://control.shelly.cloud/#Intent;scheme=https;package=cloud.shelly.smartcontrol;S.browser_fallback_url=https%3A%2F%2Fcontrol.shelly.cloud%2F;end;';
     } else {
       // Desktop / Fallback
-      window.open('https://control.shelly.cloud/', '_blank');
+      window.location.href = 'https://control.shelly.cloud/';
     }
   };
 
@@ -309,24 +361,56 @@ export default function App() {
     <div className="min-h-screen bg-slate-100 p-4 md:p-8 font-sans text-slate-900 selection:bg-emerald-200">
       <div className="max-w-md mx-auto space-y-4">
         {/* Header */}
-        <header className="flex items-center justify-between mb-6 px-1">
+        <header className="flex items-center justify-between gap-2 mb-6 px-1">
           <h1 
-            className="text-2xl font-black tracking-tight text-slate-800 cursor-pointer hover:opacity-80 transition-opacity"
+            className="text-2xl font-black tracking-tight text-slate-800 cursor-pointer hover:opacity-80 transition-opacity shrink-0"
             onClick={() => window.location.href = 'https://einstein-victron.taile3356b.ts.net:1881/evdata'}
           >
             Energy
           </h1>
-          {error ? (
-            <div className="text-xs font-bold px-3 py-1.5 bg-amber-100 text-amber-700 rounded-full flex items-center gap-1.5 shadow-sm">
-              <WifiOff size={14} strokeWidth={2.5} />
-              Offline
-            </div>
-          ) : (
-            <div className="text-xs font-bold px-3 py-1.5 bg-emerald-100 text-emerald-700 rounded-full flex items-center gap-1.5 shadow-sm">
-              <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-              Live
-            </div>
-          )}
+
+          <div className="flex items-center gap-2">
+            {!isInstalled && (
+              <button
+                onClick={handleInstallClick}
+                title="Install standalone app"
+                className="min-h-[40px] px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-bold rounded-xl shadow-sm flex items-center gap-1.5 transition-all whitespace-nowrap shrink-0 cursor-pointer"
+              >
+                <Download size={14} strokeWidth={2.5} />
+                <span>Install App</span>
+              </button>
+            )}
+
+            <button
+              onClick={toggleFullscreen}
+              title={isFullscreen ? 'Exit Full Screen' : 'Enter Full Screen'}
+              className="min-h-[40px] px-3 py-1.5 bg-white hover:bg-slate-50 active:scale-95 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl shadow-sm flex items-center gap-1.5 transition-all whitespace-nowrap shrink-0 cursor-pointer"
+            >
+              {isFullscreen ? (
+                <>
+                  <Minimize2 size={14} strokeWidth={2.5} />
+                  <span>Exit Full</span>
+                </>
+              ) : (
+                <>
+                  <Maximize2 size={14} strokeWidth={2.5} />
+                  <span>Full Screen</span>
+                </>
+              )}
+            </button>
+
+            {error ? (
+              <div className="text-xs font-bold px-2.5 py-1.5 text-amber-700 flex items-center gap-1.5 whitespace-nowrap shrink-0">
+                <WifiOff size={14} strokeWidth={2.5} />
+                <span>Offline</span>
+              </div>
+            ) : (
+              <div className="text-xs font-bold px-2.5 py-1.5 text-emerald-700 flex items-center gap-1.5 whitespace-nowrap shrink-0">
+                <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                <span>Live</span>
+              </div>
+            )}
+          </div>
         </header>
 
         {error && (
@@ -345,11 +429,11 @@ export default function App() {
             <div className="relative z-10 flex flex-col h-full justify-between min-h-[140px]">
               <div>
                 <div className="text-sm font-bold text-slate-400 mb-0.5 uppercase tracking-wider">House</div>
-                <div className="text-3xl font-black text-slate-800 tracking-tight">
+                <div className="text-3xl font-black text-slate-800 tracking-tight tabular-nums">
                   {formatValue(evData?.grid?.ac_power?.value)} <span className="text-lg font-bold text-slate-400">{evData?.grid?.ac_power?.unit}</span>
                 </div>
               </div>
-              <div className="flex justify-between items-end mt-4">
+              <div className="flex justify-between items-end mt-4 tabular-nums">
                 <div>
                   <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Grid</div>
                   <div className="text-lg font-bold text-slate-700">
@@ -373,11 +457,11 @@ export default function App() {
             <div className="relative z-10 flex flex-col h-full justify-between min-h-[140px]">
               <div>
                 <div className="text-sm font-bold text-amber-700/60 mb-0.5 uppercase tracking-wider">Solar</div>
-                <div className="text-3xl font-black text-amber-600 tracking-tight">
+                <div className="text-3xl font-black text-amber-600 tracking-tight tabular-nums">
                   {formatValue(evData?.solar?.total_power?.value)} <span className="text-lg font-bold text-amber-600/70">{evData?.solar?.total_power?.unit}</span>
                 </div>
               </div>
-              <div className="mt-4 flex justify-between items-end">
+              <div className="mt-4 flex justify-between items-end tabular-nums">
                 <div>
                   <div className="text-xs font-bold text-amber-700/50 uppercase tracking-wider">Yield</div>
                   <div className="text-lg font-bold text-amber-700">
@@ -406,7 +490,7 @@ export default function App() {
                   className="w-full h-12" 
                 />
               </div>
-              <div className="text-right flex flex-col justify-center h-full min-w-[100px]">
+              <div className="text-right flex flex-col justify-center h-full min-w-[100px] tabular-nums">
                 <div className="text-3xl font-black text-slate-800 mb-1">
                   {formatValue(evData?.battery?.soc?.value)}<span className="text-lg text-slate-500">%</span>
                 </div>
@@ -428,7 +512,7 @@ export default function App() {
                 </div>
                 <span className={`text-sm font-bold uppercase tracking-wider ${evState === 'idle' ? 'text-slate-400' : 'opacity-70'}`}>EV Charger</span>
               </div>
-              <div>
+              <div className="tabular-nums">
                 {evState === 'idle' ? (
                   <div className="text-2xl font-black tracking-tight">Idle</div>
                 ) : (
@@ -451,7 +535,7 @@ export default function App() {
                 </div>
                 <span className={`text-sm font-bold uppercase tracking-wider ${boilerIdle ? 'text-slate-400' : 'opacity-70'}`}>Boiler</span>
               </div>
-              <div>
+              <div className="tabular-nums">
                 {boilerIdle ? (
                   <div className="text-2xl font-black tracking-tight">Idle</div>
                 ) : (
@@ -474,7 +558,7 @@ export default function App() {
                 </div>
                 <span className={`text-sm font-bold uppercase tracking-wider ${laundryIdle ? 'text-slate-400' : 'opacity-70'}`}>Laundry</span>
               </div>
-              <div>
+              <div className="tabular-nums">
                 {laundryIdle ? (
                   <div className="text-2xl font-black tracking-tight">Idle</div>
                 ) : (
@@ -499,7 +583,7 @@ export default function App() {
               </div>
               <div>
                 <div className="text-sm font-bold text-indigo-700/60 mb-0.5 uppercase tracking-wider">Forecast</div>
-                <div className="text-lg font-bold text-indigo-700 leading-tight">
+                <div className="text-lg font-bold text-indigo-700 leading-tight tabular-nums">
                   {summaryWithoutEmoji}
                 </div>
               </div>
@@ -526,8 +610,8 @@ export default function App() {
             return (
               <Card key={dayOffset} onClick={() => setSelectedSection('forecast')} className="bg-amber-50/50 border-amber-100/50 p-3 flex flex-col items-center justify-center text-center">
                 <div className="text-sm font-bold text-amber-700/80 mb-0.5">{dayName}</div>
-                <div className="text-xs font-bold text-amber-700/50 mb-1">{displayDate}</div>
-                <div className="flex items-baseline gap-1">
+                <div className="text-xs font-bold text-amber-700/50 mb-1 tabular-nums">{displayDate}</div>
+                <div className="flex items-baseline gap-1 tabular-nums">
                   <div className="text-xl font-black text-amber-700">
                     {formatValue(forecastData.value)}
                   </div>
@@ -545,6 +629,74 @@ export default function App() {
         title={selectedSection}
         data={getModalData()}
       />
+
+      {showInstallGuide && (
+        <div
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4"
+          onClick={() => setShowInstallGuide(false)}
+        >
+          <div
+            className="bg-white w-full max-w-md rounded-[2rem] overflow-hidden shadow-2xl p-6 space-y-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+              <h2 className="text-lg font-bold text-slate-800">Install Standalone App</h2>
+              <button
+                onClick={() => setShowInstallGuide(false)}
+                className="p-2 bg-slate-100 rounded-full text-slate-500 hover:bg-slate-200 transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {isIOS ? (
+              <div className="space-y-3 text-sm text-slate-600 leading-relaxed">
+                <p>To install Energy Dashboard as a standalone app on iPhone or iPad:</p>
+                <ol className="list-decimal list-inside space-y-2 font-medium text-slate-700">
+                  <li>Tap the <strong>Share</strong> button in Safari&apos;s toolbar.</li>
+                  <li>Scroll down and tap <strong>Add to Home Screen</strong>.</li>
+                </ol>
+              </div>
+            ) : (
+              <div className="space-y-3 text-sm text-slate-600 leading-relaxed">
+                <p>
+                  To install as a full standalone Android app (without the Chrome address bar):
+                </p>
+                <ol className="list-decimal list-inside space-y-2 font-medium text-slate-700">
+                  <li>
+                    If you previously created a home screen shortcut, <strong>remove the old shortcut</strong> from your phone&apos;s home screen first.
+                  </li>
+                  <li>
+                    Make sure you clicked <strong>Share</strong> in AI Studio to publish the latest update, then reload this page in Chrome.
+                  </li>
+                  <li>
+                    Tap Chrome&apos;s <strong>⋮ menu → Add to Home screen → Install</strong>, or tap <strong>Full Screen</strong> below to immediately hide Chrome&apos;s bars.
+                  </li>
+                </ol>
+              </div>
+            )}
+
+            <div className="flex items-center gap-3 pt-2">
+              <button
+                onClick={() => {
+                  setShowInstallGuide(false);
+                  toggleFullscreen();
+                }}
+                className="flex-1 min-h-[44px] py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-xl shadow-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
+              >
+                <Maximize2 size={16} />
+                <span>Enter Full Screen Now</span>
+              </button>
+              <button
+                onClick={() => setShowInstallGuide(false)}
+                className="min-h-[44px] py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold rounded-xl transition-colors cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

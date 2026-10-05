@@ -12,11 +12,25 @@ export default defineConfig(({mode}) => {
       tailwindcss(),
       VitePWA({
         registerType: 'autoUpdate',
-        includeAssets: ['icon.svg', 'apple-touch-icon.png', 'icon-192x192.png', 'icon-512x512.png'],
-        manifest: false, // Provide false because we already link manifestation in index.html, well VitePWA can inject it... Let's just use it to generate the SW.
+        includeAssets: [
+          'icon.svg',
+          'apple-touch-icon.png',
+          'icon-192x192.png',
+          'icon-512x512.png',
+          'icon-maskable-512x512.png',
+          'manifest.json',
+        ],
+        manifest: false,
         workbox: {
-          globPatterns: ['**/*.{js,css,html,ico,png,svg}']
-        }
+          globPatterns: ['**/*.{js,css,html,ico,png,svg,json}'],
+          cleanupOutdatedCaches: true,
+          clientsClaim: true,
+          skipWaiting: true,
+          navigateFallbackDenylist: [/^\/api/, /:1881/],
+        },
+        devOptions: {
+          enabled: true,
+        },
       })
     ],
     define: {
@@ -29,7 +43,7 @@ export default defineConfig(({mode}) => {
     },
     server: {
       // HMR is disabled in AI Studio via DISABLE_HMR env var.
-      // Do not modifyâfile watching is disabled to prevent flickering during agent edits.
+      // Do not modify—file watching is disabled to prevent flickering during agent edits.
       hmr: process.env.DISABLE_HMR !== 'true',
     },
   };

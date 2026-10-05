@@ -77,40 +77,60 @@ define(['./workbox-7e5eb42b'], (function (workbox) { 'use strict';
    * See https://goo.gl/S9QRab
    */
   workbox.precacheAndRoute([{
+    "url": "manifest.json",
+    "revision": "7e3667341a6be133d0b0343cf0dca21c"
+  }, {
     "url": "index.html",
-    "revision": "995a1eb117dfc5a6a49808f1b0a72523"
+    "revision": "2ac7cb86be5455aea39b19d1ee537efc"
   }, {
     "url": "icon.svg",
     "revision": "41209c2b1815817300b8fa8da74b9338"
   }, {
+    "url": "icon-maskable-512x512.png",
+    "revision": "93f0a9077d1519503985ce7f5fe7b7e2"
+  }, {
     "url": "icon-512x512.png",
-    "revision": "cc1ffa42df009c894869bb9c7a4ad189"
+    "revision": "641d135960425ecbdd199ea6447f6d72"
   }, {
     "url": "icon-192x192.png",
-    "revision": "7f84539d20fee3d91502b42d2bc39303"
+    "revision": "8fe5da3cdfb6d4e8f3785c76c6055248"
   }, {
     "url": "battery.html",
     "revision": "f90616346cc6f43e7d955ae74f8c6c56"
   }, {
+    "url": "apple-touch-icon.png",
+    "revision": "d4816b00743ea4c97c3932668b9dde0d"
+  }, {
     "url": "assets/workbox-window.prod.es5-BBnX5xw4.js",
     "revision": null
   }, {
-    "url": "assets/index-DNa71sWI.css",
+    "url": "assets/index-CiGKQ35A.css",
     "revision": null
   }, {
-    "url": "assets/index-5BoetCF-.js",
+    "url": "assets/index-CaFEie4Z.js",
     "revision": null
+  }, {
+    "url": "apple-touch-icon.png",
+    "revision": "d4816b00743ea4c97c3932668b9dde0d"
   }, {
     "url": "icon-192x192.png",
-    "revision": "7f84539d20fee3d91502b42d2bc39303"
+    "revision": "8fe5da3cdfb6d4e8f3785c76c6055248"
   }, {
     "url": "icon-512x512.png",
-    "revision": "cc1ffa42df009c894869bb9c7a4ad189"
+    "revision": "641d135960425ecbdd199ea6447f6d72"
+  }, {
+    "url": "icon-maskable-512x512.png",
+    "revision": "93f0a9077d1519503985ce7f5fe7b7e2"
   }, {
     "url": "icon.svg",
     "revision": "41209c2b1815817300b8fa8da74b9338"
+  }, {
+    "url": "manifest.json",
+    "revision": "7e3667341a6be133d0b0343cf0dca21c"
   }], {});
   workbox.cleanupOutdatedCaches();
-  workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("index.html")));
+  workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("index.html"), {
+    denylist: [/^\/api/, /:1881/]
+  }));
 
 }));

@@ -3,16 +3,24 @@ import {createRoot} from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 import { registerSW } from 'virtual:pwa-register';
+import type { BeforeInstallPromptEvent } from './usePWAInstall';
 
-// Clear any legacy v1 service worker caches so old IP addresses are never served from cache
-if ('caches' in window) {
-  caches.keys().then((names) => {
-    names.forEach((name) => {
-      if (name === 'energy-dashboard-v1' || name === 'energy-dashboard-v2') {
-        caches.delete(name);
-      }
-    });
+// Capture beforeinstallprompt immediately before React mounts so it is never missed
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeinstallprompt', (e: Event) => {
+    e.preventDefault();
+    window.__deferredPWAInstallPrompt = e as BeforeInstallPromptEvent;
   });
+
+  if ('caches' in window) {
+    caches.keys().then((names) => {
+      names.forEach((name) => {
+        if (name.startsWith('energy-dashboard-v')) {
+          caches.delete(name);
+        }
+      });
+    });
+  }
 }
 
 // Register the service worker for PWA support and offline caching
