@@ -311,10 +311,52 @@ export default function App() {
   const forecastEmoji = isEmoji ? firstChar : '🌞';
   const summaryWithoutEmoji = isEmoji ? summaryChars.slice(1).join('').trim() : summaryText;
 
+  const launchAndroidPackage = (packageName: string, playStoreUrl: string, customSchemeUrl?: string) => {
+    const win = window as any;
+    if (win.AndroidAppLauncher && typeof win.AndroidAppLauncher.launchApp === 'function') {
+      win.AndroidAppLauncher.launchApp(packageName, playStoreUrl);
+      return;
+    }
+
+    const userAgent = navigator.userAgent || navigator.vendor || win.opera;
+    if (/android/i.test(userAgent)) {
+      const encodedFallback = encodeURIComponent(playStoreUrl);
+      if (customSchemeUrl) {
+        const [scheme, rest] = customSchemeUrl.split('://');
+        window.location.href = `intent://${rest || ''}#Intent;scheme=${scheme};package=${packageName};S.browser_fallback_url=${encodedFallback};end;`;
+      } else {
+        window.location.href = `intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package=${packageName};S.browser_fallback_url=${encodedFallback};end;`;
+      }
+    } else {
+      window.location.href = playStoreUrl;
+    }
+  };
+
+  const openTailscaleApp = () => {
+    launchAndroidPackage(
+      'com.tailscale.ipn',
+      'https://play.google.com/store/apps/details?id=com.tailscale.ipn',
+      'tailscale://ipn'
+    );
+  };
+
+  const openKiaApp = () => {
+    launchAndroidPackage(
+      'com.kia.oneapp.eu',
+      'https://play.google.com/store/apps/details?id=com.kia.oneapp.eu'
+    );
+  };
+
   const openShellyApp = () => {
-    const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
+    const win = window as any;
+    if (win.AndroidAppLauncher && typeof win.AndroidAppLauncher.launchApp === 'function') {
+      win.AndroidAppLauncher.launchApp('cloud.shelly.smartcontrol', 'https://control.shelly.cloud/');
+      return;
+    }
+
+    const userAgent = navigator.userAgent || navigator.vendor || win.opera;
     
-    if (/iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream) {
+    if (/iPad|iPhone|iPod/.test(userAgent) && !win.MSStream) {
       // iOS
       window.location.href = 'shellysmartcontrol://';
       setTimeout(() => {
@@ -400,10 +442,14 @@ export default function App() {
             </button>
 
             {error ? (
-              <div className="text-xs font-bold px-2.5 py-1.5 text-amber-700 flex items-center gap-1.5 whitespace-nowrap shrink-0">
+              <button
+                onClick={openTailscaleApp}
+                title="Open Tailscale App"
+                className="min-h-[40px] text-xs font-bold px-3 py-1.5 bg-amber-100 hover:bg-amber-200 active:scale-95 text-amber-700 rounded-xl flex items-center gap-1.5 whitespace-nowrap shrink-0 cursor-pointer transition-all shadow-sm"
+              >
                 <WifiOff size={14} strokeWidth={2.5} />
                 <span>Offline</span>
-              </div>
+              </button>
             ) : (
               <div className="text-xs font-bold px-2.5 py-1.5 text-emerald-700 flex items-center gap-1.5 whitespace-nowrap shrink-0">
                 <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
@@ -414,9 +460,15 @@ export default function App() {
         </header>
 
         {error && (
-          <div className="bg-amber-50 border border-amber-200 text-amber-800 text-xs font-medium p-3 rounded-2xl flex items-start gap-2">
+          <div
+            onClick={openTailscaleApp}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') openTailscaleApp(); }}
+            className="bg-amber-50 hover:bg-amber-100/80 active:scale-[0.99] border border-amber-200 text-amber-800 text-xs font-medium p-3 rounded-2xl flex items-start gap-2 cursor-pointer transition-all"
+          >
             <AlertCircle size={16} className="shrink-0 mt-0.5" />
-            <p>{error}</p>
+            <p>{error} Tap here to open Tailscale.</p>
           </div>
         )}
 
@@ -504,7 +556,7 @@ export default function App() {
 
         {/* Third Row: EV, Boiler, Laundry */}
         <div className="grid grid-cols-2 gap-4">
-          <Card onClick={() => setSelectedSection('ev')} className={`${getEvCardStyles()} col-span-1`}>
+          <Card onClick={openKiaApp} className={`${getEvCardStyles()} col-span-1`}>
             <div className="flex flex-col h-full justify-between min-h-[110px]">
               <div className="flex items-center gap-2 mb-2">
                 <div className={`p-2 rounded-xl shadow-sm ${getEvIconStyles()}`}>
