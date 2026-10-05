@@ -1,11 +1,19 @@
-const CACHE_NAME = 'energy-dashboard-v1';
+const CACHE_NAME = 'energy-dashboard-v3';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
-  event.waitUntil(clients.claim());
+  event.waitUntil(
+    caches.keys().then((cacheNames) =>
+      Promise.all(
+        cacheNames
+          .filter((name) => name !== CACHE_NAME)
+          .map((name) => caches.delete(name))
+      )
+    ).then(() => clients.claim())
+  );
 });
 
 self.addEventListener('fetch', (event) => {
@@ -14,12 +22,10 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Network-first strategy to ensure Vite dev server works correctly
-  // while still satisfying PWA installability requirements
+  // Network-first strategy to ensure fresh assets are always loaded first
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        // Only cache successful responses from our origin
         if (response.status === 200 && response.type === 'basic') {
           const responseToCache = response.clone();
           caches.open(CACHE_NAME).then((cache) => {
@@ -29,7 +35,6 @@ self.addEventListener('fetch', (event) => {
         return response;
       })
       .catch(() => {
-        // Fallback to cache if offline
         return caches.match(event.request);
       })
   );
