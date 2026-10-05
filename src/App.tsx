@@ -311,51 +311,24 @@ export default function App() {
   const forecastEmoji = isEmoji ? firstChar : '🌞';
   const summaryWithoutEmoji = isEmoji ? summaryChars.slice(1).join('').trim() : summaryText;
 
-  const launchAndroidPackage = (packageName: string, playStoreUrl: string, customSchemeUrl?: string) => {
+  const openTailscaleApp = () => {
     const win = window as any;
     if (win.AndroidAppLauncher && typeof win.AndroidAppLauncher.launchApp === 'function') {
-      win.AndroidAppLauncher.launchApp(packageName, playStoreUrl);
+      win.AndroidAppLauncher.launchApp('com.tailscale.ipn', '');
       return;
     }
-
-    const userAgent = navigator.userAgent || navigator.vendor || win.opera;
-    if (/android/i.test(userAgent)) {
-      const encodedFallback = encodeURIComponent(playStoreUrl);
-      if (customSchemeUrl) {
-        const [scheme, rest] = customSchemeUrl.split('://');
-        window.location.href = `intent://${rest || ''}#Intent;scheme=${scheme};package=${packageName};S.browser_fallback_url=${encodedFallback};end;`;
-      } else {
-        window.location.href = `intent://#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package=${packageName};S.browser_fallback_url=${encodedFallback};end;`;
-      }
-    } else {
-      window.location.href = playStoreUrl;
-    }
-  };
-
-  const openTailscaleApp = () => {
-    launchAndroidPackage(
-      'com.tailscale.ipn',
-      'https://play.google.com/store/apps/details?id=com.tailscale.ipn',
-      'tailscale://ipn'
-    );
+    // Directly invoke Tailscale's registered scheme/host (<data android:scheme="tailscale" android:host="navigate" />)
+    window.location.href = 'tailscale://navigate';
   };
 
   const openKiaApp = () => {
     const win = window as any;
     if (win.AndroidAppLauncher && typeof win.AndroidAppLauncher.launchApp === 'function') {
-      win.AndroidAppLauncher.launchApp('com.kia.oneapp.eu', 'https://play.google.com/store/apps/details?id=com.kia.oneapp.eu');
+      win.AndroidAppLauncher.launchApp('com.kia.oneapp.eu', '');
       return;
     }
-
-    const userAgent = navigator.userAgent || navigator.vendor || win.opera;
-    if (/android/i.test(userAgent)) {
-      // com.kia.oneapp.eu registers https://oneapp.kia.com/redirect with CATEGORY_BROWSABLE
-      window.location.href = 'intent://oneapp.kia.com/redirect#Intent;scheme=https;package=com.kia.oneapp.eu;S.browser_fallback_url=https%3A%2F%2Fplay.google.com%2Fstore%2Fapps%2Fdetails%3Fid%3Dcom.kia.oneapp.eu;end;';
-    } else if (/iPad|iPhone|iPod/.test(userAgent) && !win.MSStream) {
-      window.location.href = 'https://oneapp.kia.com/redirect';
-    } else {
-      window.location.href = 'https://play.google.com/store/apps/details?id=com.kia.oneapp.eu';
-    }
+    // Directly invoke Kia Europe OneApp's registered custom scheme (kiaeu://)
+    window.location.href = 'kiaeu://';
   };
 
   const openShellyApp = () => {
