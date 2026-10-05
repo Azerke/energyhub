@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Animated Battery Component</title>
+<style>
+  :root {
+    --battery-level: 68%;
+    --bg-color: #1e293b;
+    --shell-color: #cbd5e1;
+  }
+
+  body {
+    background-color: var(--bg-color);
+    color: white;
+    font-family: system-ui, -apple-system, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+  }
+
+  /* Battery Container */
+  .battery-wrapper {
+    display: flex;
+    align-items: center;
+    margin-bottom: 40px;
+  }
+
+  /* Battery Shell */
+  .battery-shell {
+    width: 200px;
+    height: 80px;
+    border: 4px solid var(--shell-color);
+    border-radius: 12px;
+    padding: 4px;
+    position: relative;
+    box-sizing: border-box;
+    background: rgba(0, 0, 0, 0.2);
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+  }
+
+  /* Battery Tip */
+  .battery-tip {
+    width: 12px;
+    height: 30px;
+    background-color: var(--shell-color);
+    border-radius: 0 6px 6px 0;
+    margin-left: 2px;
+  }
+
+  /* Battery Fill */
+  .battery-fill {
+    height: 100%;
+    width: var(--battery-level);
+    border-radius: 6px;
+    /* Gradient that reveals based on width */
+    background: linear-gradient(to right, #ef4444 0%, #f59e0b 50%, #10b981 100%);
+    background-size: 184px 100%; /* Fixed size to match the max inner width (200 - 8 - 8) */
+    position: relative;
+    overflow: hidden;
+    transition: width 0.3s ease-in-out;
+  }
+
+  /* Pulse Overlay */
+  .pulse-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .pulse-overlay::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.5) 50%,
+      rgba(255, 255, 255, 0) 100%
+    );
+  }
+
+  /* Charging Animation (Left to Right) */
+  .battery-shell.charging .pulse-overlay {
+    opacity: 1;
+  }
+  .battery-shell.charging .pulse-overlay::before {
+    animation: pulse-charge 1.5s infinite linear;
+  }
+
+  /* Discharging Animation (Right to Left) */
+  .battery-shell.discharging .pulse-overlay {
+    opacity: 1;
+  }
+  .battery-shell.discharging .pulse-overlay::before {
+    animation: pulse-discharge 1.5s infinite linear;
+  }
+
+  @keyframes pulse-charge {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(200%); }
+  }
+
+  @keyframes pulse-discharge {
+    0% { transform: translateX(200%); }
+    100% { transform: translateX(0); }
+  }
+
+  /* Controls UI */
+  .controls {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 24px;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 300px;
+  }
+
+  .control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: space-between;
+  }
+
+  button {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    background: #334155;
+    color: white;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s, transform 0.1s;
+  }
+
+  button:hover {
+    background: #475569;
+  }
+
+  button:active {
+    transform: scale(0.95);
+  }
+
+  button.active {
+    background: #3b82f6;
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+  }
+
+  input[type="range"] {
+    width: 100%;
+    accent-color: #10b981;
+  }
+
+  .level-display {
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+    font-variant-numeric: tabular-nums;
+  }
+</style>
+</head>
+<body>
+
+  <div class="battery-wrapper">
+    <div class="battery-shell" id="battery">
+      <div class="battery-fill">
+        <div class="pulse-overlay"></div>
+      </div>
+    </div>
+    <div class="battery-tip"></div>
+  </div>
+
+  <div class="controls">
+    <div class="control-group">
+      <label>State</label>
+      <div class="buttons">
+        <button id="btn-charge" onclick="setState('charging')">Charge</button>
+        <button id="btn-idle" class="active" onclick="setState('idle')">Idle</button>
+        <button id="btn-discharge" onclick="setState('discharging')">Discharge</button>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <label for="level-slider">Battery Level</label>
+      <input type="range" id="level-slider" min="0" max="100" value="68" oninput="updateLevel(this.value)">
+      <div class="level-display"><span id="level-text">68</span>%</div>
+    </div>
+  </div>
+
+  <script>
+    const battery = document.getElementById('battery');
+    const levelText = document.getElementById('level-text');
+    const root = document.documentElement;
+
+    function setState(state) {
+      // Update classes
+      battery.className = 'battery-shell';
+      if (state !== 'idle') {
+        battery.classList.add(state);
+      }
+
+      // Update active button
+      document.querySelectorAll('.buttons button').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(`btn-${state.replace('ing', '')}`).classList.add('active');
+    }
+
+    function updateLevel(value) {
+      root.style.setProperty('--battery-level', `${value}%`);
+      levelText.textContent = value;
+    }
+  </script>
+
+</body>
+</html>

@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Home, Sun, Car, Droplets, X, Calendar, WifiOff, AlertCircle, WashingMachine } from 'lucide-react';
 import { AnimatedBattery } from './components/AnimatedBattery';
 
-const API_URL_EVDATA = 'https://100.74.104.126:1881/evdata';
-const API_URL_SOLARDATA = 'https://100.74.104.126:1881/solardata';
+const API_BASE_URL = 'https://einstein-victron.taile3356b.ts.net:1881';
+const API_URL_EVDATA = `${API_BASE_URL}/evdata`;
+const API_URL_SOLARDATA = `${API_BASE_URL}/solardata`;
 
 const MOCK_EVDATA = {
   "ev": {
@@ -312,7 +313,7 @@ export default function App() {
         <header className="flex items-center justify-between mb-6 px-1">
           <h1 
             className="text-2xl font-black tracking-tight text-slate-800 cursor-pointer hover:opacity-80 transition-opacity"
-            onClick={() => window.location.href = 'https://100.74.104.126:1881/evdata'}
+            onClick={() => window.location.href = API_URL_EVDATA}
           >
             Energy
           </h1>
@@ -338,7 +339,7 @@ export default function App() {
 
         {/* Top Row: Grid and Solar */}
         <div className="grid grid-cols-2 gap-4">
-          <Card onClick={() => window.location.href = 'https://100.74.104.126:1881/dashboard/page1'} className="bg-white border-slate-200 col-span-1">
+          <Card onClick={() => window.location.href = `${API_BASE_URL}/dashboard/page1`} className="bg-white border-slate-200 col-span-1">
             <div className="absolute -left-10 top-1/2 -translate-y-1/2 text-slate-100">
               <Home size={140} strokeWidth={1} />
             </div>
