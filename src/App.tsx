@@ -341,10 +341,21 @@ export default function App() {
   };
 
   const openKiaApp = () => {
-    launchAndroidPackage(
-      'com.kia.oneapp.eu',
-      'https://play.google.com/store/apps/details?id=com.kia.oneapp.eu'
-    );
+    const win = window as any;
+    if (win.AndroidAppLauncher && typeof win.AndroidAppLauncher.launchApp === 'function') {
+      win.AndroidAppLauncher.launchApp('com.kia.oneapp.eu', 'https://play.google.com/store/apps/details?id=com.kia.oneapp.eu');
+      return;
+    }
+
+    const userAgent = navigator.userAgent || navigator.vendor || win.opera;
+    if (/android/i.test(userAgent)) {
+      // com.kia.oneapp.eu registers https://oneapp.kia.com/redirect with CATEGORY_BROWSABLE
+      window.location.href = 'intent://oneapp.kia.com/redirect#Intent;scheme=https;package=com.kia.oneapp.eu;S.browser_fallback_url=https%3A%2F%2Fplay.google.com%2Fstore%2Fapps%2Fdetails%3Fid%3Dcom.kia.oneapp.eu;end;';
+    } else if (/iPad|iPhone|iPod/.test(userAgent) && !win.MSStream) {
+      window.location.href = 'https://oneapp.kia.com/redirect';
+    } else {
+      window.location.href = 'https://play.google.com/store/apps/details?id=com.kia.oneapp.eu';
+    }
   };
 
   const openShellyApp = () => {
@@ -451,10 +462,14 @@ export default function App() {
                 <span>Offline</span>
               </button>
             ) : (
-              <div className="text-xs font-bold px-2.5 py-1.5 text-emerald-700 flex items-center gap-1.5 whitespace-nowrap shrink-0">
+              <button
+                onClick={openTailscaleApp}
+                title="Open Tailscale App"
+                className="min-h-[40px] text-xs font-bold px-3 py-1.5 bg-emerald-100 hover:bg-emerald-200 active:scale-95 text-emerald-700 rounded-xl flex items-center gap-1.5 whitespace-nowrap shrink-0 cursor-pointer transition-all shadow-sm"
+              >
                 <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
                 <span>Live</span>
-              </div>
+              </button>
             )}
           </div>
         </header>
