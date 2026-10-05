@@ -314,11 +314,18 @@ export default function App() {
   const openTailscaleApp = () => {
     const win = window as any;
     if (win.AndroidAppLauncher && typeof win.AndroidAppLauncher.launchApp === 'function') {
-      win.AndroidAppLauncher.launchApp('com.tailscale.ipn', '');
+      win.AndroidAppLauncher.launchApp('com.tailscale.ipn', 'https://play.google.com/store/apps/details?id=com.tailscale.ipn');
       return;
     }
-    // Directly invoke Tailscale's registered scheme/host (<data android:scheme="tailscale" android:host="navigate" />)
-    window.location.href = 'tailscale://navigate';
+
+    const userAgent = navigator.userAgent || navigator.vendor || win.opera;
+    if (/android/i.test(userAgent)) {
+      window.location.href = 'intent://navigate/main/devices#Intent;scheme=tailscale;package=com.tailscale.ipn;end;';
+    } else if (/iPad|iPhone|iPod/.test(userAgent) && !win.MSStream) {
+      window.location.href = 'tailscale://navigate/main/devices';
+    } else {
+      window.location.href = 'https://play.google.com/store/apps/details?id=com.tailscale.ipn';
+    }
   };
 
   const openKiaApp = () => {
