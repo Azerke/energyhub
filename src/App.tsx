@@ -8,49 +8,52 @@ const API_URL_SOLARDATA = 'https://einstein-victron.taile3356b.ts.net:1881/solar
 
 const MOCK_EVDATA = {
   "ev": {
-    "current_power": { "value": 6, "unit": "W", "description": "Current Power drawn by the EV Charger" },
-    "charged_today": { "value": 163.7, "unit": "kWh", "description": "Current total of EV charged kWh of this day" },
-    "charged_month": { "value": 205.9, "unit": "kWh", "description": "Current total of EV charged kWh of this month" },
-    "total_counter": { "value": 2953.9, "unit": "kWh", "description": "Current total of EV charged kWh (Lifetime)" },
-    "start_day": { "value": "2790.2", "unit": "kWh", "description": "Total of EV charged kWh at the end of last day" },
-    "start_month": { "value": "2748", "unit": "kWh", "description": "Total of EV charged kWh at the end of last month" },
+    "current_power": { "value": 5, "unit": "W", "description": "Current Power drawn by the EV Charger" },
+    "charged_today": { "value": 15, "unit": "kWh", "description": "Current total of EV charged kWh of this day" },
+    "charged_month": { "value": 66.8, "unit": "kWh", "description": "Current total of EV charged kWh of this month" },
+    "total_counter": { "value": 4802.2, "unit": "kWh", "description": "Current total of EV charged kWh (Lifetime)" },
+    "start_day": { "value": "4787.2", "unit": "kWh", "description": "Total of EV charged kWh at the end of last day" },
+    "start_month": { "value": "4735.4", "unit": "kWh", "description": "Total of EV charged kWh at the end of last month" },
     "status": { "value": "Idle", "raw_value": 0, "unit": "State", "description": "Charging On or Off" }
   },
   "solar": {
-    "total_power": { "value": 2859, "unit": "W", "description": "Sum of both PV Outputs (both DC and grid connected)" },
-    "ac_pv_power": { "value": 2024, "unit": "W", "description": "The current PV output from the grid connected PV system" },
-    "dc_pv_power": { "value": 835, "unit": "W", "description": "The current PV output from the DC connected PV system" },
-    "dc_pv_total": { "value": 6.8, "unit": "W", "description": "The total day PV output from the DC connected PV system in kWh" },
-    "ac_pv_totalday": { "value": 3235.5, "unit": "kWh", "description": "The total day PV output from the DC connected PV system in kWh" },
-    "total_powerday": { "value": 5.3, "unit": "kWh", "description": "Total Sum of both PV Outputs (both DC and grid connected) in kWh of the day" }
+    "total_power": { "value": 27, "unit": "W", "description": "Sum of both PV Outputs (both DC and grid connected)" },
+    "ac_pv_power": { "value": 0, "unit": "W", "description": "The current PV output from the grid connected PV system" },
+    "growatt": { "value": 22, "unit": "W", "description": "The current PV output from the grid connected PV system growatt" },
+    "dc_pv_power": { "value": 5, "unit": "W", "description": "The current PV output from the DC connected PV system" },
+    "dc_pv_total": { "value": 8.3, "unit": "W", "description": "The total day PV output from the DC connected PV system in kWh" },
+    "ac_pv_totalday": { "value": 6665, "unit": "kWh", "description": "The total day PV output from the DC connected PV system in kWh" },
+    "total_powerday": { "value": 19.97, "unit": "kWh", "description": "Total Sum of both PV Outputs (both DC and grid connected) in kWh of the day" }
   },
   "grid": {
-    "total_power": { "value": 7, "unit": "W", "description": "Total Power drawn from the grid" },
-    "setpoint": { "value": 0, "unit": "W", "description": "Current Setting of the Grid Setpoint" },
-    "ac_power": { "value": 2201, "unit": "W", "description": "Total Power drawn by the house" },
-    "dc_power": { "value": 0, "unit": "W", "description": "Total Power provided by the dc charger" },
-    "boilerpower": { "value": 2.1, "unit": "W", "description": "Power drawn by the boiler" },
-    "boilerpowerday": { "value": 9645.6, "unit": "W", "description": "Total Power drawn by the boiler today" },
-    "boilerpowertotal": { "value": 12895.596, "unit": "W", "description": "Total Power drawn by the boiler since beginning" },
-    "boilerpowertotaldaystart": { "value": "3250", "unit": "W", "description": "Total Power drawn by the boiler since beginning at start of day" },
-    "waspower": { "value": 0, "unit": "W", "description": "Power drawn by the was" },
-    "waspowerday": { "value": 13464.5, "unit": "Wh", "description": "Total Power drawn by the was today" },
-    "waspowertotal": { "value": 13464.497, "unit": "W", "description": "Total Power drawn by the was since beginning" },
+    "total_power": { "value": -6, "unit": "W", "description": "Total Power drawn from the grid" },
+    "setpoint": { "value": -24, "unit": "W", "description": "Current Setting of the Grid Setpoint" },
+    "ac_power": { "value": 2718, "unit": "W", "description": "Total Power drawn by the house" },
+    "dc_power": { "value": 970, "unit": "W", "description": "Total Power provided by the dc charger" },
+    "boilerpower": { "value": 354.6, "unit": "W", "description": "Power drawn by the boiler" },
+    "boilerpowerday": { "value": 2804.47, "unit": "W", "description": "Total Power drawn by the boiler today" },
+    "boilerpowertotal": { "value": 511026.42, "unit": "W", "description": "Total Power drawn by the boiler since beginning" },
+    "boilerpowertotaldaystart": { "value": 508221.949, "unit": "W", "description": "Total Power drawn by the boiler since beginning at start of day" },
+    "waspower": { "value": 1.4, "unit": "W", "description": "Power drawn by the was" },
+    "waspowerday": { "value": 344569.42, "unit": "W", "description": "Total Power drawn by the was today" },
+    "waspowertotal": { "value": 344569.424, "unit": "W", "description": "Total Power drawn by the was since beginning" },
     "waspowertotaldaystart": { "value": 0, "unit": "W", "description": "Total Power drawn by the was since beginning at start of day" },
+    "vaatwaspower": { "value": 231.3, "unit": "W", "description": "Power drawn by the was" },
+    "plugpower": { "value": 227.7, "unit": "W", "description": "Power drawn by the was" },
     "acpowerday": { "value": 0, "unit": "W", "description": "Total Power drawn by the boiler today" },
-    "gridpowerday": { "value": 22683, "unit": "W", "description": "Total Power drawn from grid today" }
+    "gridpowerday": { "value": 4522, "unit": "W", "description": "Total Power drawn from grid today" }
   },
   "battery": {
-    "soc": { "value": 68, "unit": "%", "description": "Current Battery State of Charge" },
-    "status": { "value": "Opladen", "unit": "text", "description": "Current Status of Battery" },
-    "power": { "value": 574, "unit": "W", "description": "Current power of Battery" }
+    "soc": { "value": 63, "unit": "%", "description": "Current Battery State of Charge" },
+    "status": { "value": "Ontladen", "unit": "text", "description": "Current Status of Battery" },
+    "power": { "value": -1906, "unit": "W", "description": "Current power of Battery" }
   },
   "forecast": {
-    "prediction": { "value": "19.36", "unit": "kWh", "description": "Forecast total of both connected PV systems" },
-    "summary": { "value": "🌞 Forecast 19.36 kWh = 102.4%", "unit": "Text", "description": "Description of the Forecast (with emoticon and percentage)" }
+    "prediction": { "value": "24.03", "unit": "kWh", "description": "Forecast total of both connected PV systems" },
+    "summary": { "value": "🌞 Forecast 24.03 kWh = 127.1%", "unit": "Text", "description": "Description of the Forecast (with emoticon and percentage)" }
   },
   "meta": {
-    "timestamp": "2026-03-09T10:31:28.650Z",
+    "timestamp": "2026-10-06T17:14:33.663Z",
     "system": "Victron Venus OS via Node-RED"
   }
 };
@@ -78,6 +81,53 @@ const formatValue = (val: any) => {
   }
   return val;
 };
+
+const DishwasherIcon = ({ size = 20, strokeWidth = 2.5, className = '' }: { size?: number; strokeWidth?: number; className?: string }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={strokeWidth}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <rect width="18" height="20" x="3" y="2" rx="2" />
+    <path d="M3 7h18" />
+    <path d="M7 4.5h4" />
+    <path d="M17 4.5h.01" />
+    <circle cx="10" cy="13.5" r="3" />
+    <path d="M14.5 10.8a3 3 0 0 1 0 5.4" />
+    <path d="M6 18.5h12" />
+  </svg>
+);
+
+const HeaterIcon = ({ size = 20, strokeWidth = 2.5, className = '' }: { size?: number; strokeWidth?: number; className?: string }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={strokeWidth}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <path d="M11 8c2-3-2-3 0-6" />
+    <path d="M15.5 8c2-3-2-3 0-6" />
+    <path d="M6 10h.01" />
+    <path d="M6 14h.01" />
+    <path d="M10 16v-4" />
+    <path d="M14 16v-4" />
+    <path d="M18 16v-4" />
+    <rect width="20" height="12" x="2" y="8" rx="2" />
+    <path d="M5 20v2" />
+    <path d="M19 20v2" />
+  </svg>
+);
 
 const Card = ({ children, onClick, className = '' }: any) => (
   <div 
@@ -298,6 +348,32 @@ export default function App() {
   const getLaundryIconStyles = () => {
     if (laundryIdle) return 'bg-slate-200 text-slate-500';
     return 'bg-blue-100 text-blue-600';
+  };
+
+  const vaatwasPower = evData?.grid?.vaatwaspower?.value || 0;
+  const vaatwasIdle = vaatwasPower < 5;
+
+  const getVaatwasCardStyles = () => {
+    if (vaatwasIdle) return 'bg-slate-50 border-slate-200 text-slate-500';
+    return 'bg-cyan-50 border-cyan-100 text-cyan-700';
+  };
+
+  const getVaatwasIconStyles = () => {
+    if (vaatwasIdle) return 'bg-slate-200 text-slate-500';
+    return 'bg-cyan-100 text-cyan-600';
+  };
+
+  const plugPower = evData?.grid?.plugpower?.value || 0;
+  const plugIdle = plugPower < 5;
+
+  const getPlugCardStyles = () => {
+    if (plugIdle) return 'bg-slate-50 border-slate-200 text-slate-500';
+    return 'bg-orange-50 border-orange-100 text-orange-700';
+  };
+
+  const getPlugIconStyles = () => {
+    if (plugIdle) return 'bg-slate-200 text-slate-500';
+    return 'bg-orange-100 text-orange-600';
   };
 
   const batteryStatus = evData?.battery?.status?.value?.toLowerCase() || '';
@@ -615,6 +691,56 @@ export default function App() {
                 )}
                 <div className={`text-xs font-bold mt-1 ${laundryIdle ? 'text-slate-400' : 'opacity-70'}`}>
                   Today: {formatValue(evData?.grid?.waspowerday?.value)} {evData?.grid?.waspowerday?.unit || 'Wh'}
+                </div>
+              </div>
+            </div>
+          </Card>
+
+          <Card onClick={openShellyApp} className={`${getVaatwasCardStyles()} col-span-1`}>
+            <div className="flex flex-col h-full justify-between min-h-[110px]">
+              <div className="flex items-center gap-2 mb-2">
+                <div className={`p-2 rounded-xl shadow-sm ${getVaatwasIconStyles()}`}>
+                  <DishwasherIcon size={20} strokeWidth={2.5} />
+                </div>
+                <span className={`text-sm font-bold uppercase tracking-wider ${vaatwasIdle ? 'text-slate-400' : 'opacity-70'}`}>Vaatwas</span>
+              </div>
+              <div className="tabular-nums">
+                {vaatwasIdle ? (
+                  <div className="text-2xl font-black tracking-tight">Idle</div>
+                ) : (
+                  <div className="text-2xl font-black tracking-tight">
+                    {formatValue(vaatwasPower)} <span className="text-sm font-bold opacity-70">{evData?.grid?.vaatwaspower?.unit || 'W'}</span>
+                  </div>
+                )}
+                <div className={`text-xs font-bold mt-1 ${vaatwasIdle ? 'text-slate-400' : 'opacity-70'}`}>
+                  {evData?.grid?.vaatwaspowerday?.value !== undefined
+                    ? `Today: ${formatValue(evData.grid.vaatwaspowerday.value)} ${evData.grid.vaatwaspowerday.unit || 'W'}`
+                    : vaatwasIdle ? 'Standby' : 'Active'}
+                </div>
+              </div>
+            </div>
+          </Card>
+
+          <Card onClick={openShellyApp} className={`${getPlugCardStyles()} col-span-1`}>
+            <div className="flex flex-col h-full justify-between min-h-[110px]">
+              <div className="flex items-center gap-2 mb-2">
+                <div className={`p-2 rounded-xl shadow-sm ${getPlugIconStyles()}`}>
+                  <HeaterIcon size={20} strokeWidth={2.5} />
+                </div>
+                <span className={`text-sm font-bold uppercase tracking-wider ${plugIdle ? 'text-slate-400' : 'opacity-70'}`}>Plug</span>
+              </div>
+              <div className="tabular-nums">
+                {plugIdle ? (
+                  <div className="text-2xl font-black tracking-tight">Idle</div>
+                ) : (
+                  <div className="text-2xl font-black tracking-tight">
+                    {formatValue(plugPower)} <span className="text-sm font-bold opacity-70">{evData?.grid?.plugpower?.unit || 'W'}</span>
+                  </div>
+                )}
+                <div className={`text-xs font-bold mt-1 ${plugIdle ? 'text-slate-400' : 'opacity-70'}`}>
+                  {evData?.grid?.plugpowerday?.value !== undefined
+                    ? `Today: ${formatValue(evData.grid.plugpowerday.value)} ${evData.grid.plugpowerday.unit || 'W'}`
+                    : plugIdle ? 'Standby' : 'Active'}
                 </div>
               </div>
             </div>
