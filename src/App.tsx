@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Home, Sun, Car, Droplets, X, Calendar, WifiOff, AlertCircle, WashingMachine, Download, Maximize2, Minimize2 } from 'lucide-react';
 import { AnimatedBattery } from './components/AnimatedBattery';
+import { PowerTrendChart } from './components/PowerTrendChart';
 import { usePWAInstall } from './usePWAInstall';
 
 const API_URL_EVDATA = 'https://einstein-victron.taile3356b.ts.net:1881/evdata';
@@ -793,6 +794,16 @@ export default function App() {
               </Card>
             );
           })}
+        </div>
+
+        {/* Sixth Row: 12-Hour House & Solar Power Trend */}
+        <div className="grid grid-cols-1">
+          <PowerTrendChart
+            housePower={Number(evData?.grid?.ac_power?.value) || 0}
+            solarPower={Number(evData?.solar?.total_power?.value) || 0}
+            houseUnit={evData?.grid?.ac_power?.unit || 'W'}
+            solarUnit={evData?.solar?.total_power?.unit || 'W'}
+          />
         </div>
       </div>
 
