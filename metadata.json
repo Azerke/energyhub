@@ -1,5 +1,5 @@
 {
-  "name": "Energy Dashboard",
-  "description": "A dashboard to monitor home energy usage, solar production, battery status, and EV charging from a local Node-RED API.",
+  "name": "Walbo Power",
+  "description": "Walbo Power live home energy dashboard for solar, battery, grid, EV, boiler, dishwasher, and laundry telemetry.",
   "requestFramePermissions": []
 }

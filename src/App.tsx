@@ -473,10 +473,11 @@ export default function App() {
         {/* Header */}
         <header className="flex items-center justify-between gap-2 mb-6 px-1">
           <h1 
-            className="text-2xl font-black tracking-tight text-slate-800 cursor-pointer hover:opacity-80 transition-opacity shrink-0"
+            className="text-xl font-black tracking-tight text-slate-800 cursor-pointer hover:opacity-80 transition-opacity shrink-0 flex items-center gap-2"
             onClick={() => window.location.href = 'https://einstein-victron.taile3356b.ts.net:1881/evdata'}
           >
-            Energy
+            <img src="/icon-192x192.png" alt="Walbo Power" className="w-7 h-7 rounded-lg shadow-xs" />
+            <span>Walbo Power</span>
           </h1>
 
           <div className="flex items-center gap-2">
@@ -824,7 +825,13 @@ export default function App() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-              <h2 className="text-lg font-bold text-slate-800">Install Standalone App</h2>
+              <div className="flex items-center gap-3">
+                <img src="/icon-192x192.png" alt="Walbo Power" className="w-10 h-10 rounded-xl shadow-sm" />
+                <div>
+                  <h2 className="text-lg font-bold text-slate-800 leading-tight">Install Walbo Power</h2>
+                  <p className="text-xs text-slate-400 font-medium">Standalone Android App</p>
+                </div>
+              </div>
               <button
                 onClick={() => setShowInstallGuide(false)}
                 className="p-2 bg-slate-100 rounded-full text-slate-500 hover:bg-slate-200 transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center"
@@ -835,7 +842,7 @@ export default function App() {
 
             {isIOS ? (
               <div className="space-y-3 text-sm text-slate-600 leading-relaxed">
-                <p>To install Energy Dashboard as a standalone app on iPhone or iPad:</p>
+                <p>To install <strong>Walbo Power</strong> as a standalone app on iPhone or iPad:</p>
                 <ol className="list-decimal list-inside space-y-2 font-medium text-slate-700">
                   <li>Tap the <strong>Share</strong> button in Safari&apos;s toolbar.</li>
                   <li>Scroll down and tap <strong>Add to Home Screen</strong>.</li>
@@ -844,7 +851,7 @@ export default function App() {
             ) : (
               <div className="space-y-3 text-sm text-slate-600 leading-relaxed">
                 <p>
-                  To install as a full standalone Android app (without the Chrome address bar):
+                  To install <strong>Walbo Power</strong> as a full standalone Android app (without the Chrome address bar):
                 </p>
                 <ol className="list-decimal list-inside space-y-2 font-medium text-slate-700">
                   <li>

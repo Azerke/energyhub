@@ -1,4 +1,28 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
-  <rect width="512" height="512" rx="100" fill="#10b981"/>
-  <path d="M224 352L224 256 160 256 288 160 288 256 352 256 224 352Z" fill="#ffffff"/>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#10694f"/>
+      <stop offset="100%" stop-color="#0a2d34"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="108" fill="url(#bg)"/>
+  <!-- Sun and Rays -->
+  <g stroke="#fbbf24" stroke-width="16" stroke-linecap="round">
+    <line x1="338" y1="66" x2="338" y2="44"/>
+    <line x1="338" y1="210" x2="338" y2="232"/>
+    <line x1="266" y1="138" x2="244" y2="138"/>
+    <line x1="410" y1="138" x2="432" y2="138"/>
+    <line x1="287" y1="87" x2="271" y2="71"/>
+    <line x1="389" y1="189" x2="405" y2="205"/>
+    <line x1="389" y1="87" x2="405" y2="71"/>
+    <line x1="287" y1="189" x2="271" y2="205"/>
+  </g>
+  <circle cx="338" cy="138" r="56" fill="#fbbf24"/>
+  <circle cx="338" cy="138" r="42" fill="#fde047"/>
+  <!-- House -->
+  <rect x="128" y="144" width="36" height="84" rx="6" fill="#ffffff"/>
+  <polygon points="84,258 240,112 396,258" fill="#ffffff" stroke="#ffffff" stroke-width="16" stroke-linejoin="round"/>
+  <rect x="122" y="246" width="236" height="164" rx="12" fill="#ffffff"/>
+  <!-- Lightning Bolt -->
+  <polygon points="261,180 184,292 235,292 215,388 302,266 251,266" fill="#f59e0b" stroke="#0f172a" stroke-width="10" stroke-linejoin="round"/>
 </svg>

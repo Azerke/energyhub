@@ -2,29 +2,36 @@ import {StrictMode} from 'react';
 import {createRoot} from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
-import { registerSW } from 'virtual:pwa-register';
 import type { BeforeInstallPromptEvent } from './usePWAInstall';
 
-// Capture beforeinstallprompt immediately before React mounts so it is never missed
 if (typeof window !== 'undefined') {
   window.addEventListener('beforeinstallprompt', (e: Event) => {
     e.preventDefault();
     window.__deferredPWAInstallPrompt = e as BeforeInstallPromptEvent;
   });
 
-  if ('caches' in window) {
-    caches.keys().then((names) => {
-      names.forEach((name) => {
-        if (name.startsWith('energy-dashboard-v')) {
-          caches.delete(name);
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      // Unregister any broken dev-sw.js registrations and register /sw.js at root scope
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        for (const reg of registrations) {
+          if (reg.active?.scriptURL.includes('dev-sw.js')) {
+            reg.unregister();
+          }
         }
       });
+
+      navigator.serviceWorker
+        .register('/sw.js', { scope: '/' })
+        .then((reg) => {
+          reg.update();
+        })
+        .catch((err) => {
+          console.error('SW registration error:', err);
+        });
     });
   }
 }
-
-// Register the service worker for PWA support and offline caching
-registerSW({ immediate: true });
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
