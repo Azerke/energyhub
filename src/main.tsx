@@ -11,24 +11,21 @@ if (typeof window !== 'undefined') {
   });
 
   if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      // Unregister any broken dev-sw.js registrations and register /sw.js at root scope
-      navigator.serviceWorker.getRegistrations().then((registrations) => {
+    window.addEventListener('load', async () => {
+      try {
+        const registrations = await navigator.serviceWorker.getRegistrations();
         for (const reg of registrations) {
-          if (reg.active?.scriptURL.includes('dev-sw.js')) {
-            reg.unregister();
+          const scriptURL =
+            reg.active?.scriptURL || reg.waiting?.scriptURL || reg.installing?.scriptURL || '';
+          if (scriptURL.includes('dev-sw.js')) {
+            await reg.unregister();
           }
         }
-      });
 
-      navigator.serviceWorker
-        .register('/sw.js', { scope: '/' })
-        .then((reg) => {
-          reg.update();
-        })
-        .catch((err) => {
-          console.error('SW registration error:', err);
-        });
+        await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+      } catch {
+        // Ignore service worker registration errors in restricted preview contexts
+      }
     });
   }
 }

@@ -96,7 +96,7 @@ export const PowerTrendChart: React.FC<PowerTrendChartProps> = ({
     setRecordedPoints((prev) => {
       const cutoff = now - TWELVE_HOURS_MS - BUCKET_MS;
       const next: Record<number, { house: number; solar: number }> = {};
-      for (const [k, v] of Object.entries(prev)) {
+      for (const [k, v] of Object.entries(prev) as [string, { house: number; solar: number }][]) {
         const ts = Number(k);
         if (ts >= cutoff) {
           next[ts] = v;

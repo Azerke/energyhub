@@ -16,10 +16,13 @@ export default defineConfig(({mode}) => {
             if (req.url?.startsWith('/manifest.json')) {
               res.setHeader('Content-Type', 'application/manifest+json');
               res.setHeader('Cache-Control', 'no-cache');
-            } else if (req.url?.startsWith('/sw.js')) {
+            } else if (req.url?.startsWith('/sw.js') || req.url?.startsWith('/dev-sw.js')) {
               res.setHeader('Content-Type', 'application/javascript');
               res.setHeader('Service-Worker-Allowed', '/');
               res.setHeader('Cache-Control', 'no-cache');
+              if (req.url?.startsWith('/dev-sw.js')) {
+                req.url = '/sw.js';
+              }
             }
             next();
           });
