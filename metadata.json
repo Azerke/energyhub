@@ -1,5 +1,5 @@
 {
-  "name": "Walbo Power",
-  "description": "Walbo Power live home energy dashboard for solar, battery, grid, EV, boiler, dishwasher, and laundry telemetry.",
+  "name": "Walbo",
+  "description": "Walbo live home energy dashboard for solar, battery, grid, EV, boiler, dishwasher, and laundry telemetry.",
   "requestFramePermissions": []
 }

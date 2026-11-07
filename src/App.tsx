@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Home, Sun, Car, Droplets, X, Calendar, WifiOff, AlertCircle, WashingMachine, Download, Maximize2, Minimize2 } from 'lucide-react';
+import { Home, Sun, Car, Droplets, X, Calendar, WifiOff, AlertCircle, WashingMachine, Download, Maximize2, Minimize2, Radio } from 'lucide-react';
 import { AnimatedBattery } from './components/AnimatedBattery';
 import { PowerTrendChart } from './components/PowerTrendChart';
 import { usePWAInstall } from './usePWAInstall';
 
-const API_URL_EVDATA = 'https://einstein-victron.taile3356b.ts.net:1881/evdata';
-const API_URL_SOLARDATA = 'https://einstein-victron.taile3356b.ts.net:1881/solardata';
+export const HOST_DNS = 'https://einstein-victron.taile3356b.ts.net:1881';
+export const HOST_IP = 'https://100.74.104.126:1881';
+export type HostMode = 'dns' | 'ip';
 
 const MOCK_EVDATA = {
   "ev": {
@@ -182,6 +183,15 @@ const Modal = ({ isOpen, onClose, title, data }: any) => {
 };
 
 export default function App() {
+  const [hostMode, setHostMode] = useState<HostMode>(() => {
+    try {
+      const saved = localStorage.getItem('walbo_host_mode');
+      return saved === 'ip' ? 'ip' : 'dns';
+    } catch {
+      return 'dns';
+    }
+  });
+
   const [evData, setEvData] = useState<any>(null);
   const [solarData, setSolarData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
@@ -192,11 +202,13 @@ export default function App() {
 
   const { isInstallable, isInstalled, isIOS, install } = usePWAInstall();
 
-  const fetchData = async () => {
+  const activeBaseUrl = hostMode === 'ip' ? HOST_IP : HOST_DNS;
+
+  const fetchData = async (targetBaseUrl: string = activeBaseUrl) => {
     try {
       const [evRes, solarRes] = await Promise.all([
-        fetch(API_URL_EVDATA, { cache: 'no-store' }),
-        fetch(API_URL_SOLARDATA, { cache: 'no-store' })
+        fetch(`${targetBaseUrl}/evdata`, { cache: 'no-store' }),
+        fetch(`${targetBaseUrl}/solardata`, { cache: 'no-store' })
       ]);
       
       if (!evRes.ok || !solarRes.ok) {
@@ -213,17 +225,33 @@ export default function App() {
       // Fallback to mock data if VPN is not connected or fetch fails
       setEvData(MOCK_EVDATA);
       setSolarData(MOCK_SOLARDATA);
-      setError('Offline mode. Ensure VPN is connected, Node-RED has CORS enabled, and the HTTPS certificate is trusted.');
+      const hostDisplay = targetBaseUrl.replace('https://', '');
+      setError(`Offline mode (${hostDisplay}). Ensure Tailscale VPN is connected, Node-RED has CORS enabled, and the HTTPS certificate is trusted.`);
     } finally {
       setLoading(false);
     }
   };
 
+  const handleHostToggle = (newMode: HostMode) => {
+    if (newMode === hostMode) return;
+    setHostMode(newMode);
+    try {
+      localStorage.setItem('walbo_host_mode', newMode);
+    } catch (e) {
+      console.warn('Could not save host preference:', e);
+    }
+    const targetUrl = newMode === 'ip' ? HOST_IP : HOST_DNS;
+    setLoading(true);
+    fetchData(targetUrl);
+  };
+
   useEffect(() => {
-    fetchData();
-    const interval = setInterval(fetchData, 5000);
+    fetchData(activeBaseUrl);
+    const interval = setInterval(() => {
+      fetchData(activeBaseUrl);
+    }, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [hostMode]);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -471,13 +499,14 @@ export default function App() {
     <div className="min-h-screen bg-slate-100 p-4 md:p-8 font-sans text-slate-900 selection:bg-emerald-200">
       <div className="max-w-md mx-auto space-y-4">
         {/* Header */}
-        <header className="flex items-center justify-between gap-2 mb-6 px-1">
+        <header className="flex items-center justify-between gap-2 mb-4 px-1">
           <h1 
             className="text-xl font-black tracking-tight text-slate-800 cursor-pointer hover:opacity-80 transition-opacity shrink-0 flex items-center gap-2"
-            onClick={() => window.location.href = 'https://einstein-victron.taile3356b.ts.net:1881/evdata'}
+            onClick={() => window.location.href = `${activeBaseUrl}/evdata`}
+            title={`Open raw evdata (${activeBaseUrl}/evdata)`}
           >
-            <img src="/icon-192x192.png" alt="Walbo Power" className="w-7 h-7 rounded-lg shadow-xs" />
-            <span>Walbo Power</span>
+            <img src="/icon-192x192.png" alt="Walbo" className="w-7 h-7 rounded-lg shadow-xs" />
+            <span>Walbo</span>
           </h1>
 
           <div className="flex items-center gap-2">
@@ -532,6 +561,54 @@ export default function App() {
           </div>
         </header>
 
+        {/* Host / URL Switcher Toggle */}
+        <div className="bg-white border border-slate-200/90 rounded-2xl p-2.5 px-3 flex items-center justify-between gap-2 shadow-xs">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className={`w-7 h-7 rounded-xl flex items-center justify-center shrink-0 ${hostMode === 'ip' ? 'bg-indigo-50 text-indigo-600' : 'bg-emerald-50 text-emerald-600'}`}>
+              <Radio size={14} strokeWidth={2.5} />
+            </div>
+            <div className="min-w-0">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 leading-none mb-1">
+                Victron Host URL
+              </div>
+              <div 
+                className="text-xs font-mono font-semibold text-slate-700 truncate cursor-pointer hover:text-slate-900"
+                onClick={() => window.location.href = `${activeBaseUrl}/evdata`}
+                title={`Click to open ${activeBaseUrl}/evdata`}
+              >
+                {hostMode === 'ip' ? '100.74.104.126:1881' : 'einstein-victron.ts.net:1881'}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center p-1 bg-slate-100 rounded-xl shrink-0 gap-1">
+            <button
+              type="button"
+              onClick={() => handleHostToggle('dns')}
+              title="Switch to MagicDNS: https://einstein-victron.taile3356b.ts.net:1881"
+              className={`px-2.5 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                hostMode === 'dns'
+                  ? 'bg-white text-slate-900 shadow-xs'
+                  : 'text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              MagicDNS
+            </button>
+            <button
+              type="button"
+              onClick={() => handleHostToggle('ip')}
+              title="Switch to Direct IP: https://100.74.104.126:1881"
+              className={`px-2.5 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                hostMode === 'ip'
+                  ? 'bg-white text-slate-900 shadow-xs'
+                  : 'text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              100.74 IP
+            </button>
+          </div>
+        </div>
+
         {error && (
           <div
             onClick={openTailscaleApp}
@@ -547,7 +624,11 @@ export default function App() {
 
         {/* Top Row: Grid and Solar */}
         <div className="grid grid-cols-2 gap-4">
-          <Card onClick={() => window.location.href = 'https://einstein-victron.taile3356b.ts.net:1881/dashboard/page1'} className="bg-white border-slate-200 col-span-1">
+          <Card 
+            onClick={() => window.location.href = `${activeBaseUrl}/dashboard/page1`} 
+            title={`Open Victron Dashboard (${activeBaseUrl}/dashboard/page1)`}
+            className="bg-white border-slate-200 col-span-1"
+          >
             <div className="absolute -left-10 top-1/2 -translate-y-1/2 text-slate-100">
               <Home size={140} strokeWidth={1} />
             </div>
@@ -826,9 +907,9 @@ export default function App() {
           >
             <div className="flex items-center justify-between border-b border-slate-100 pb-4">
               <div className="flex items-center gap-3">
-                <img src="/icon-192x192.png" alt="Walbo Power" className="w-10 h-10 rounded-xl shadow-sm" />
+                <img src="/icon-192x192.png" alt="Walbo" className="w-10 h-10 rounded-xl shadow-sm" />
                 <div>
-                  <h2 className="text-lg font-bold text-slate-800 leading-tight">Install Walbo Power</h2>
+                  <h2 className="text-lg font-bold text-slate-800 leading-tight">Install Walbo</h2>
                   <p className="text-xs text-slate-400 font-medium">Standalone Android App</p>
                 </div>
               </div>
@@ -842,7 +923,7 @@ export default function App() {
 
             {isIOS ? (
               <div className="space-y-3 text-sm text-slate-600 leading-relaxed">
-                <p>To install <strong>Walbo Power</strong> as a standalone app on iPhone or iPad:</p>
+                <p>To install <strong>Walbo</strong> as a standalone app on iPhone or iPad:</p>
                 <ol className="list-decimal list-inside space-y-2 font-medium text-slate-700">
                   <li>Tap the <strong>Share</strong> button in Safari&apos;s toolbar.</li>
                   <li>Scroll down and tap <strong>Add to Home Screen</strong>.</li>
@@ -851,7 +932,7 @@ export default function App() {
             ) : (
               <div className="space-y-3 text-sm text-slate-600 leading-relaxed">
                 <p>
-                  To install <strong>Walbo Power</strong> as a full standalone Android app (without the Chrome address bar):
+                  To install <strong>Walbo</strong> as a full standalone Android app (without the Chrome address bar):
                 </p>
                 <ol className="list-decimal list-inside space-y-2 font-medium text-slate-700">
                   <li>
